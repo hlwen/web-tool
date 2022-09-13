@@ -47,14 +47,9 @@ body {
   height: 100px;
   border: 1px solid #000;
 }
-#showImg{
-  width: 100%;
-  max-height: calc(100vh);
-  object-fit: contain;
-}
 form {
   text-align: left;
-  height: 100%;
+  overflow: auto;
 }
 
 .container {
