@@ -1,0 +1,108 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  text-align: left;
+  margin: 0px;
+  padding: 0px;
+  overflow: auto;
+  display: flex;
+  background-color: #ffffff;
+}
+#loading{
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  font-size: 30px;
+  box-sizing: border-box;
+  text-align: center;
+  padding-top: 200px;
+  color: #fff;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.68);
+}
+.flex-container{
+  flex: 1;
+  display: flex;
+}
+.flex-container form{
+
+}
+.flex-container #a4{
+  overflow: auto;
+  flex: 1;
+}
+
+.flex-container .a4{
+  min-width: 210mm;
+  width: 210mm;
+}
+#copyImg{
+  width: 100%;
+  height: 100px;
+  border: 1px solid #000;
+}
+#showImg{
+  width: 100%;
+  max-height: calc(100vh);
+  object-fit: contain;
+}
+form {
+  text-align: left;
+  height: 100%;
+}
+
+.container {
+  padding: 10px;
+}
+
+.text_bottom {
+  bottom: 0;
+}
+
+
+.a4{
+  margin: 0 auto 20px;
+  width: 100%;
+  border: 1px solid #333;
+  flex-direction: column;
+}
+.a4 .invoice{
+  flex: 1;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.a4 .invoice .btn-danger{
+  position: absolute;
+  right: 0;
+  top: 40%;
+}
+.a4 .invoice img{
+  width: 100%;
+  height: auto;
+
+}
+/*媒体查询，打印时样式生效，不用也可以*/
+@media print {
+  .a4{
+    border: none;
+  }
+  .a4 .invoice{
+  page-break-inside:avoid;
+}
+  .a4 .invoice .btn-danger{
+  display: none;
+}
+  /*用于在打印文档时修改某些 CSS 属性*/
+  @page {
+  margin: 7mm;
+  }
+}
