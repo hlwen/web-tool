@@ -10,3 +10,5 @@
 You can upload multiple JPG, JPEG, PNG invoices and print two invoices on one A4 paper
 
 [Access to the address](https://hlwen.github.io/web-print-invoice/index.html)
+
+本项目出来pdf文件使用了pdf.js，项目地址[pdfjs](https://github.com/mozilla/pdf.js)
