@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "一个关于使用gulp 构建前端工作流的静态网站",
   "main": "index.js",
+  "homepage": "https://[username].github.io/web-tool",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cross-env NODE_ENV='development' gulp",
