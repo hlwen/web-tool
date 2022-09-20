@@ -1,0 +1,50 @@
+{
+  "name": "mh-web-gulp",
+  "version": "1.0.0",
+  "description": "一个关于使用gulp 构建前端工作流的静态网站",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env NODE_ENV='development' gulp",
+    "build": "cross-env NODE_ENV='production' gulp build",
+    "build-test": "cross-env NODE_ENV='production' gulp build-test"
+  },
+  "keywords": [
+    "gulp",
+    "gulp4.0",
+    "template"
+  ],
+  "browserslist": [
+    "defaults and supports es6-module",
+    "maintained node versions"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "browser-sync": "^2.27.5",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-cheerio": "^1.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-connect": "^5.7.0",
+    "gulp-file-include": "^2.3.0",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-if": "^3.0.0",
+    "gulp-less": "^5.0.0",
+    "gulp-load-plugins": "^2.0.7",
+    "gulp-rename": "^1.4.0",
+    "gulp-uglify": "^3.0.2",
+    "http-proxy-middleware": "^2.0.1"
+  },
+  "dependencies": {
+    "cross-env": "^5.2.0",
+    "gulp-changed": "^4.0.3",
+    "gulp-eslint": "^6.0.0",
+    "minimist": "^1.2.6",
+    "rimraf": "^2.6.2"
+  },
+  "test": {}
+}

@@ -1,0 +1,15 @@
+{
+  "env": {
+    "es6": true,
+    "browser": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-console": 0
+  },
+  "globals": { // 需要设置全局变量的放在这里
+    "Swiper": true,
+    "$": true,
+    "jquery": true
+  }
+}

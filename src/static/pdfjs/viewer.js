@@ -792,7 +792,7 @@ const defaultOptions = {
     kind: OptionKind.API
   },
   cMapUrl: {
-    value: "../web/cmaps/",
+    value: "./cmaps/",
     kind: OptionKind.API
   },
   disableAutoFetch: {
@@ -836,7 +836,7 @@ const defaultOptions = {
     kind: OptionKind.API
   },
   standardFontDataUrl: {
-    value: "../web/standard_fonts/",
+    value: "./standard_fonts/",
     kind: OptionKind.API
   },
   verbosity: {
@@ -854,7 +854,7 @@ const defaultOptions = {
 };
 {
   defaultOptions.defaultUrl = {
-    value: "compressed.tracemonkey-pldi-09.pdf",
+    value: "",
     kind: OptionKind.VIEWER
   };
   defaultOptions.disablePreferences = {

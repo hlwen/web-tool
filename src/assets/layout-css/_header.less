@@ -1,0 +1,90 @@
+// 头部
+#header {
+  height: 80px;
+  width: 100%;
+  transform: translateX(0);
+  z-index: 100;
+  background: #FFFFFF;
+
+  .header-box {
+    height: 80px;
+    line-height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+
+      .logo {
+        padding-right: 10px;
+      }
+    }
+
+    // 导航栏
+    .nav {
+      position: relative;
+
+      .fore {
+        float: left;
+        padding: 0 45px;
+
+        a {
+          height: 80px;
+          line-height: 80px;
+          font-size: 16px;
+          //color: #ffffff;
+          color: #333333;
+        }
+
+        &.active a {
+          font-weight: bold;
+        }
+
+        &:hover a {
+          font-weight: bold;
+        }
+      }
+
+      // 导航下面的横线
+      .navline {
+        height: 4px;
+        position: absolute;
+        background-color:#3E6FEF;
+        border-radius: 4px;
+        bottom: 0px;
+        transition: all 0.3s;
+      }
+    }
+  }
+}
+.home {
+  #header {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,37,188,.3);
+    .header-box{
+      .nav{
+        position: relative;
+        .fore{
+          a{
+            color: #FFFFFF;
+          }
+        }
+        .navline{
+          background-color: #ffffff;
+          height: 4px;
+          position: absolute;
+          border-radius: 4px;
+          bottom: 0px;
+          transition: all 0.3s;
+        }
+      }
+    }
+  }
+}
+

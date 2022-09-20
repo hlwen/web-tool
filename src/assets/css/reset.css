@@ -1,0 +1,89 @@
+@charset "utf-8";
+body, div, dl, dt, dd, ul, ol, li,a, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, button, textarea, p, blockquote, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align:baseline;
+}
+
+body {
+    background: #fff;
+    color: #333333;
+    font-size: 18px;
+    font-weight: 400;
+    font-family: "PingFang";
+    line-height: 1.5;
+}
+
+td, th, caption {
+    font-size: 14px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    font-size: 100%;
+}
+
+address, caption, cite, code, dfn, em, strong, th, var {
+    font-style: normal;
+    font-weight: normal;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+img {
+    border: none;
+}
+
+ol, ul, li {
+    list-style: none;
+}
+
+input, textarea, select, button {
+    font: 14px Verdana, Helvetica, Arial, sans-serif;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+.clearfix::after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.clearfix {
+    *zoom: 1;
+}
+
+.wrap {
+    width: 1190px;
+    margin: 0 auto;
+}
+
+/*primary:       #00a468, // 主色调*/
+/* primary-deep:  #338947, // 主色调（深）*/
+/*secondary:     #f9a108, // 次色调*/
+/*danger:        #f53d3d, // 警告*/
+/*light:         #f4f4f4, // 浅色*/
+/*dark:          #222     // 黑色*/
+.primaryBg {
+    background: rgba(0, 37, 188, 0.3)
+}
+
+.secondaryBg {
+    background: #3E6FEF
+}
