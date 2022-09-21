@@ -8,14 +8,19 @@
     <meta name="description" content="在线打印电子发票工具，发票助手可以打印多张pdf、jpg、jpeg、png格式发票 <br>一张A4纸打印两张发票">
 
     <link rel="stylesheet" href="./assets/css/reset.css"/>
-    <link rel="stylesheet" href="./assets/css/index.css"/>
+    <link rel="stylesheet" href="./assets/css/index.less"/>
     <title>发票打印小工具</title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
 @@include('header.html')
 <div id="loading">请稍后。。。</div>
-<div class="flex-container" id="app">
+<div class="flex-container" id="app" v-cloak>
     <form>
         <div class="container">
             <div style="height:50px"></div>

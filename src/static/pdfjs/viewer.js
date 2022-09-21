@@ -848,7 +848,7 @@ const defaultOptions = {
     kind: OptionKind.WORKER
   },
   workerSrc: {
-    value: "../build/pdf.worker.js",
+    value: "./pdf.worker.js",
     kind: OptionKind.WORKER
   }
 };
@@ -870,7 +870,7 @@ const defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   };
   defaultOptions.sandboxBundleSrc = {
-    value: "../build/pdf.sandbox.js",
+    value: "./pdf.sandbox.js",
     kind: OptionKind.VIEWER
   };
 }
@@ -4328,10 +4328,10 @@ exports.PDFPrintServiceFactory = PDFPrintServiceFactory;
 
 let pdfjsLib;
 
-if (typeof window !== "undefined" && window["pdfjs-dist/build/pdf"]) {
-  pdfjsLib = window["pdfjs-dist/build/pdf"];
+if (typeof window !== "undefined" && window["./pdf"]) {
+  pdfjsLib = window["./pdf"];
 } else {
-  pdfjsLib = require("../build/pdf.js");
+  pdfjsLib = require("./pdf.js");
 }
 
 module.exports = pdfjsLib;

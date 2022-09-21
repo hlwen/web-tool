@@ -10,14 +10,13 @@ const reload = browserSync.reload;
 const proxy = require('http-proxy-middleware'); // 本地开发 代理
 const minimist = require('minimist');           // 命令行参数解析工具
 const fileinclude = require('gulp-file-include');
-
+const replace = require('gulp-replace');
 const gulpChanged = require('gulp-changed');
 
-console.log(proxy)
 // 解析命令行中的参数
 const knownOptions = {
     string: 'env',
-    default: {env: process.env.NODE_ENV || 'production'}
+    default: {env: process.env.NODE_ENV || 'development'}
 };
 const options = minimist(process.argv.slice(2), knownOptions);
 console.log(options, 'options');
@@ -142,6 +141,22 @@ task('fileinclude', function () {
             prefix: '@@',
             basepath: './src/components/'
         }))
+        .pipe(replace(/\.less/g, '.css'))
+          .pipe(plugins.htmlmin({
+            removeComments: true,               // 清除HTML注释
+            collapseWhitespace: true,           // 压缩空格
+            collapseBooleanAttributes: true,    // 省略布尔属性的值 <input checked="true"/> => <input checked>
+            removeEmptyAttributes: true,        // 删除所有空格作属性值 <input id=""> => <input>
+            removeScriptTypeAttributes: true,   // 删除<script>的type="text/javascript"
+            removeStyleLinkTypeAttributes: true,// 删除<style>和<link>的type="text/css"
+            minifyJS: true,                     // 压缩页面JS
+            minifyCSS: true                     // 压缩页面CSS
+          }))
+        //   .pipe(plugins.cheerio(function ($, file, done) {
+        //     // $('body').prepend('<script src="../../dist/js/env.js"></script>');
+        //     // $('body').prepend(`<script>window.PROJECT_NODE_ENV = '${options.env}';</script>`);
+        //     done();
+        //   }))
         .pipe(gulp.dest(paths.dest.html))
     // .pipe(reload({
     //     stream: true

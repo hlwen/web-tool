@@ -11,8 +11,25 @@
     <link rel="stylesheet" href="./assets/css/index.css"/>
     <title>发票打印小工具</title>
     <style>
-        [v-cloak] {
-            display: none;
+        .flex-container{
+            max-width: 1200px;
+            width: 100%;
+            margin: 50px auto;
+        }
+        .links{
+            flex: 1;
+            display: flex;
+            display: -webkit-flex;
+            justify-content: space-between;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .links .link{
+            height: 200px;
+            width: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -20,194 +37,13 @@
 
 @@include('header.html')
 <div id="loading">请稍后。。。</div>
-<div class="flex-container" id="app" v-cloak>
-    <form>
-        <div class="container">
-            <div style="height:50px"></div>
-            <h5>您可以选择需要打印的发票</h5>
-            <label class="btn btn-lg btn-primary btn-block" for="inputfile">
-                选择发票
-            </label>
-            <input style="display: none" type="file" multiple name="file" class="form-control-file"
-                   accept="image/png,image/jpg,image/jpeg,,application/pdf" id="inputfile" @change="onChange">
-            <h5>或将文件拖拽或黏贴图像到下方输入框内，识别结果将在右边显示</h5>
-            <textarea @paste.stop="onPaste" id="copyImg"
-                      placeholder="将文件拖拽或黏贴图像至此"></textarea>
-
-            <div style="height:50px"></div>
-            <button :disabled="!imgs.length" class="btn btn-lg btn-primary btn-block" @click="onSubmit" type="button">打印</button>
-            <div style="height:100px"></div>
-            <div>可以同时打印多张pdf、jpg、jpeg、png格式发票 <br>一张A4纸打印两张发票</div>
-            <p>本工具不会上传任何文件或信息到服务器，一切操作和计算都在您本地进行。</p>
-        </div>
-
-    </form>
-    <div id="a4">
-        <div class="a4" v-for="(i,index) in _imgs" :key="index">
-            <div class="invoice" v-for="(j,jndex) in i" :key="jndex">
-                <img :src="j" style="page-break-inside:avoid;"/>
-                <button class="btn btn-danger" @click="onDelete(j)" type="button">删除</button>
-            </div>
-        </div>
+<div class="flex-container" >
+    <div class="links">
+        <a class="link" href="./print-invoice.html">发票打印</a>
+        <a class="link" href="./pdf-to-images.html">PDF转图片</a>
     </div>
 </div>
 
-<!--<script src="/static/jquery-3.6.0.js"></script>-->
-<!--<script src="/static/popper.min.js"></script>-->
-<!--<script src="/static/bootstrap.min.js"></script>-->
-<script src="./static/vue.min.js"></script>
-
-<script src="./static/Print.js"></script>
-<script src="./static/pdfjs/pdf.js"></script>
-<script type="text/javascript">
-
-    var vm = new Vue({
-        el: '#app',
-        data: {
-            imgs: [],
-        },
-        mounted() {
-            var target = document.getElementById('copyImg');
-
-
-            target.addEventListener('dragover', (event) => {
-                event.preventDefault();
-            })
-            target.addEventListener('drop', (event) => {
-                event.preventDefault();
-                const files = event.dataTransfer.files // 获取到第一个上传的文件对象
-                this.addImg(files)
-            })
-        },
-        computed: {
-            _imgs() {
-                let list = []
-                this.imgs.forEach((i, index) => {
-                    if (index % 2 === 0) {
-                        list.push([])
-                    }
-                    list[list.length - 1].push(i)
-                })
-                return list
-            }
-        },
-        methods: {
-            onDelete(j) {
-                this.imgs.splice(this.imgs.indexOf(j), 1)
-            },
-            onChange(event) {
-                this.addImg(event.target.files)
-                event.target.value = '';
-            },
-            onPaste(event) {
-                console.log(event)
-                var clipboardData = (event.clipboardData || window.clipboardData)
-                let files = clipboardData.files
-                this.addImg(files)
-
-            },
-            //渲染生成图片
-            renderImg(pdfFile, pageNumber) {
-
-                pdfFile.getPage(pageNumber).then( (page) => { //逐页解析PDF
-
-                    var viewport = page.getViewport({
-                        scale: 2
-                    }); // 页面缩放比例
-                    var newcanvas = document.createElement('canvas');
-                    var canvasContext = newcanvas.getContext('2d');
-                    //设置canvas真实宽高
-                    newcanvas.width = viewport.width;
-                    newcanvas.height = viewport.height;
-
-                    //设置canvas在浏览中宽高
-                    newcanvas.style.width = "100%";
-                    newcanvas.style.height = "100%";
-
-                    //默认显示第一页，其他页隐藏
-                    if (pageNumber != 1) {
-                        newcanvas.style.display = "none";
-                    }
-
-                    var renderContext = {
-                        canvasContext: canvasContext,
-                        viewport: viewport
-                    };
-
-                    page.render(renderContext).promise.then( () => {
-                        var dataURL = newcanvas.toDataURL("image/png");
-                        this.imgs.push(dataURL)
-                    }); //渲染生成
-                });
-
-            },
-            addImg(files) {
-                for (let i = 0; i < files.length; i++) {
-                    let fileReader = new FileReader();
-                    let file = files[i]
-                    fileReader.onload = () => {
-                        if (file.name.includes('.pdf')) {
-                            const workerParameters = {
-                                workerPort: null,
-                                workerSrc: './static/pdfjs/pdf.worker.js'
-                            }
-                            for (const key in workerParameters) {
-                                pdfjsLib.GlobalWorkerOptions[key] = workerParameters[key];
-                            }
-                            pdfjsLib.getDocument({
-                                cMapPacked: true,
-                                cMapUrl: "./cmaps/",
-                                disableAutoFetch: false,
-                                disableFontFace: false,
-                                disableRange: false,
-                                disableStream: false,
-                                docBaseUrl: "",
-                                enableXfa: true,
-                                fontExtraProperties: false,
-                                isEvalSupported: true,
-                                maxImageSize: -1,
-                                pdfBug: false,
-                                standardFontDataUrl: "./standard_fonts/",
-                                url: fileReader.result,
-                                verbosity: 1}).promise.then( (pdf)=> { //调用pdf.js获取文件
-                                if (pdf) {
-                                    console.log(pdf)
-                                   let totalPages = pdf.numPages; //获取pdf文件总页数
-                                    //遍历动态创建canvas
-                                    for(var i = 1; i <= totalPages; i++) {
-
-                                        this.renderImg(pdf,i);
-                                    }
-
-                                }
-                            });
-                        } else {
-                            this.imgs.push(fileReader.result)
-                        }
-
-                        // 其它跟上面是一样的，这里只需要指定 img 的 src 到 FileReader.result 就好了
-                    };
-                    fileReader.readAsDataURL(files[i]);
-                }
-
-
-            },
-            select() {
-
-            },
-            onSubmit() {
-                Print('#a4', {
-                    onStart: function () {
-                        console.log('onStart', new Date())
-                    },
-                    onEnd: function () {
-                        console.log('onEnd', new Date())
-                    }
-                })
-            }
-        }
-    })
-</script>
 @@include('footer.html')
 </body>
 </html>
