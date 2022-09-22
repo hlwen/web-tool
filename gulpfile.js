@@ -73,7 +73,7 @@ task('img', () => {
  * 这里将 less 文件分开写，是有原因的 这样打包出来的文件夹会少一层
  */
 task('css', () => {
-    return src([paths.src.css + '**/*.less', paths.src.css + '**/*.css'], {sourcemaps: true})
+    return src([paths.src.css + '**/*.less', paths.src.css + '**/*.css'], {sourcemaps: options.env === 'development'})
         .pipe(gulpChanged(paths.dest.css, {extension: '.css'}))
         .pipe(plugins.less())
         .pipe(plugins.autoprefixer({
@@ -96,7 +96,7 @@ task('css', () => {
  * 处理 js
  */
 task('js', () => {
-    return src([paths.src.js + '**/*.js'], {sourcemaps: true})
+    return src([paths.src.js + '**/*.js'], {sourcemaps: options.env === 'development'})
 
         .pipe(gulpChanged(paths.dest.js))
         .pipe(eslint())

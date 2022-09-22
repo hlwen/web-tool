@@ -2,20 +2,7 @@
 @import "../layout-css/_header.less";
 @import "../layout-css/_footer.less";
 
-#loading{
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  font-size: 30px;
-  box-sizing: border-box;
-  text-align: center;
-  padding-top: 200px;
-  color: #fff;
-  display: none;
-  background-color: rgba(0, 0, 0, 0.68);
-}
+
 .flex-container{
   display: flex;
   align-items: center;
@@ -44,10 +31,21 @@
   .left{
     width: 200px;
     overflow: auto;
+    .invoice{
+      margin: 0 auto;
+    }
   }
   .right{
     flex: 1;
     overflow: auto;
+    .a4{
+      position: relative;
+      .el-button{
+        position: absolute;
+        right: 0;
+        top: 46%;
+      }
+    }
   };
 
 }

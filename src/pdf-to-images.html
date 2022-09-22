@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="./assets/css/reset.css"/>
     <link rel="stylesheet" href="./assets/css/pdf-to-images.less"/>
     <link rel="stylesheet" href="./static/element-ui.css"/>
-    <title>发票打印小工具</title>
+    <title>PDF文件转图片小工具</title>
     <style>
         [v-cloak] {
             display: none;
@@ -20,40 +20,38 @@
 </head>
 <body>
 @@include('header.html')
-<div id="loading">请稍后。。。</div>
 <div class="flex-container" id="app" v-cloak>
-    <form v-if="!pdf">
+    <form v-if="!pdfs.length">
         <div class="container">
             <div style="height:50px"></div>
-            <h5>您可以选择需要打印的发票</h5>
-            <label class="btn btn-lg btn-primary btn-block" for="inputfile">
-                选择发票
-            </label>
-            <input style="display: none" type="file" multiple name="file" class="form-control-file"
-                   accept="application/pdf" id="inputfile" @change="onChange">
-            <h5>或将文件拖拽或黏贴图像到下方输入框内，识别结果将在右边显示</h5>
+            <h5>您可以选择需要转化的PDF文件</h5>
+<!--            <label class="btn btn-lg btn-primary btn-block" for="inputfile">-->
+<!--                选择PDF文件-->
+<!--            </label>-->
+            <el-button  type="primary" @click="onChange()" type="button">选择PDF文件<i class="el-icon-upload2"></i></el-button>
+<!--            <input style="display: none" type="file" multiple name="file" class="form-control-file"-->
+<!--                   accept="application/pdf" id="inputfile" @change="onChange">-->
+            <h5>或将PDF文件拖拽或黏贴到下方输入框内</h5>
             <textarea @paste.stop="onPaste" id="copyImg"
-                      placeholder="将文件拖拽或黏贴图像至此"></textarea>
+                      placeholder="将PDF文件拖拽或黏贴至此"></textarea>
 
-            <div style="height:50px"></div>
-            <button :disabled="!imgs.length" class="btn btn-lg btn-primary btn-block" @click="onSubmit" type="button">
-                打印
-            </button>
             <div style="height:100px"></div>
-            <div>可以同时打印多张pdf、jpg、jpeg、png格式发票 <br>一张A4纸打印两张发票</div>
+            <div>可以批量转化全部页面，也可以单独转化一个页面</div>
             <p>本工具不会上传任何文件或信息到服务器，一切操作和计算都在您本地进行。</p>
         </div>
 
     </form>
-    <div id="a4" v-if="pdf">
+    <div id="a4" v-if="pdfs.length">
         <el-button-group>
-            <el-button type="primary" icon="el-icon-arrow-left">上一页</el-button>
-            <el-button type="primary">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-            <el-button @click="downZip" type="primary">下载<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+<!--            <el-button type="primary" icon="el-icon-arrow-left">上一页</el-button>-->
+<!--            <el-button type="primary">下一页<i class="el-icon-arrow-right el-icon&#45;&#45;right"></i></el-button>-->
+            <el-button @click="downZip" type="primary">打包下载<i class="el-icon-download"></i></el-button>
+
+            <el-button  type="primary" @click="onChange()" type="button">添加PDF文件<i class="el-icon-upload2"></i></el-button>
         </el-button-group>
         <div class="container-view">
             <div class="left">
-                <div class="invoice" v-lazy-show="jndex" @click="goImg(j)" @show="onShow(j)" :style="{width: j.width +'px',height: j.height +'px'}" v-for="(j,jndex) in thumbnails" :key="jndex">
+                <div class="invoice" v-lazy-show="jndex" @click="goImg(j,jndex)" @show="onShow(j)" :style="{width: j.width +'px',height: j.height +'px'}" v-for="(j,jndex) in thumbnails" :key="jndex">
                     <img  v-if="j.src" :src="j.src"
                          style="page-break-inside:avoid;width: 100%"/>
                     <!--                    <button class="btn btn-danger" @click="onDelete(j)" type="button">删除</button>-->
@@ -64,7 +62,7 @@
                 <div class="a4" v-for="(i,index) in imgs" ref="img" v-lazy-show="index" @show="onShow(i,2)" :key="index" :style="{width: !i.src?i.width +'px':'',height: !i.src?i.height +'px':''}">
                     <img v-if="i.src" :src="i.src"
                          style="page-break-inside:avoid;width: 100%"/>
-                    <el-button v-if="i.src" @click="downImg(i)" type="button">下载</el-button>
+                    <el-button  type="primary" v-if="i.src" @click="downImg(i)" type="button">下载<i class="el-icon-download"></i></el-button>
                 </div>
             </div>
         </div>
@@ -76,11 +74,10 @@
 <script src="./static/vue.min.js"></script>
 <script src="./static/element-ui.js"></script>
 
-<script src="./static/Print.js"></script>
-<script src="./static/pdfjs/pdf.js"></script>
-<script src="./static/FileSaver.min.js"></script>
-<script src="./static/jszip.min.js"></script>
-<script type="module">
+<script defer src="./static/pdfjs/pdf.js"></script>
+<script defer src="./static/FileSaver.min.js"></script>
+<script defer src="./static/jszip.min.js"></script>
+<script defer type="module">
     import LazyShow from './assets/js/LazyShow.js';
 
     Vue.use(LazyShow, {
@@ -89,13 +86,12 @@
     var vm = new Vue({
         el: '#app',
         data: {
-            pdf: null,
+            pdfs: [],
             imgs: [],
             thumbnails: [],
             currentPages: 0,
             totalPages: 0, //声明一个当前页码及总页数变量
             scale: 2,//设置缩放比例，越大生成图片越清晰
-
         },
         mounted() {
             var target = document.getElementById('copyImg');
@@ -112,7 +108,7 @@
         methods: {
             onShow(e, scale = 0.5) {
                 if (!e.src) {
-                    this.renderImg(this.pdf, e.index, scale).then((data) => {
+                    this.renderImg(this.pdfs[e.pdfIndex], e.index, scale).then((data) => {
                         e.src = data.src
                         e.width = data.width
                         e.height = data.height
@@ -120,16 +116,26 @@
                 }
             },
             // 跳转到对应页面
-            goImg(j){
-               let el = this.$refs['img'][j.index-1]
+            goImg(j,jndex){
+               let el = this.$refs['img'][jndex]
                 el.parentNode.scrollTo({ 'behavior': 'smooth', 'top':  el.offsetTop - el.parentNode.offsetTop })
             },
             onDelete(j) {
                 this.imgs.splice(this.imgs.indexOf(j), 1)
             },
-            onChange(event) {
-                this.addImg(event.target.files)
-                event.target.value = '';
+            onChange() {
+
+                let input = document.createElement('input')
+                input.type = 'file'
+                input.name = 'file'
+                input.accept = 'application/pdf'
+                input.multiple = true
+                input.onchange = (event)=>{
+                    console.log(event)
+                    this.addImg(event.target.files)
+                }
+                input.click()
+
             },
             onPaste(event) {
                 console.log(event)
@@ -150,8 +156,7 @@
                         scale
                     }); // 页面缩放比例
                     var newcanvas = document.createElement('canvas');
-                    var canvasContext = newcanvas.getContext('2d');
-                    console.log(viewport.width, viewport.height)
+                    var canvasContext =  newcanvas.getContext('2d');
                     //设置canvas真实宽高
                     newcanvas.width = viewport.width;
                     newcanvas.height = viewport.height;
@@ -176,7 +181,7 @@
                 });
 
             },
-            addImg(files) {
+            async addImg(files) {
                 const workerParameters = {
                     workerPort: null,
                     workerSrc: './static/pdfjs/pdf.worker.js'
@@ -185,47 +190,69 @@
                     pdfjsLib.GlobalWorkerOptions[key] = workerParameters[key];
                 }
                 for (let i = 0; i < files.length; i++) {
-                    let fileReader = new FileReader();
                     let file = files[i]
-                    fileReader.onload = () => {
-
-                        pdfjsLib.getDocument({
-                            cMapPacked: true,
-                            cMapUrl: "./cmaps/",
-                            disableAutoFetch: false,
-                            disableFontFace: false,
-                            disableRange: false,
-                            disableStream: false,
-                            docBaseUrl: "",
-                            enableXfa: true,
-                            fontExtraProperties: false,
-                            isEvalSupported: true,
-                            maxImageSize: -1,
-                            pdfBug: false,
-                            standardFontDataUrl: "./standard_fonts/",
-                            url: fileReader.result,
-                            verbosity: 1
-                        }).promise.then(async (pdf) => { //调用pdf.js获取文件
-                            if (pdf) {
-                                this.pdf = pdf
-                                this.totalPages = pdf.numPages
-                                let totalPages = pdf.numPages; //获取pdf文件总页数
-                                pdf.getPage(1).then((page) => { //逐页解析PDF
-                                    let [top, left, w, h] = page.view
-                                    //遍历动态创建canvas
-                                    for (var i = 1; i <= totalPages; i++) {
-                                        this.thumbnails.push({src: '', index: i, width: 150, height: h * (150 / w)})
-                                        this.imgs.push({src: '', index: i, width: w, height: h})
-
-                                    }
-                                })
-
-
-                            }
+                    let fileExtension = file.name.split('.').pop()
+                    if(fileExtension.toLowerCase() !== 'pdf'){
+                        this.$notify.error({
+                            title: '提示',
+                            message: '请上传pdf文件'
                         });
+                        continue
                     }
+                    let pdfIndex = this.pdfs.length
+                    console.log(pdfIndex)
+                   await new Promise((resolve,reject) => {
+                        let fileReader = new FileReader();
+                        fileReader.onload = () => {
+                            pdfjsLib.getDocument({
+                                cMapPacked: true,
+                                cMapUrl: "./cmaps/",
+                                disableAutoFetch: false,
+                                disableFontFace: false,
+                                disableRange: false,
+                                disableStream: false,
+                                docBaseUrl: "",
+                                enableXfa: true,
+                                fontExtraProperties: false,
+                                isEvalSupported: true,
+                                maxImageSize: -1,
+                                pdfBug: false,
+                                standardFontDataUrl: "./standard_fonts/",
+                                url: fileReader.result,
+                                verbosity: 1
+                            }).promise.then(async (pdf) => { //调用pdf.js获取文件
+                                if (pdf) {
+                                    this.pdfs.push(pdf)
+                                    this.totalPages = pdf.numPages
+                                    let totalPages = pdf.numPages; //获取pdf文件总页数
+                                    pdf.getPage(1).then((page) => { //逐页解析PDF
+                                        let [top, left, w, h] = page.view
+                                        //遍历动态创建canvas
+                                        for (var i = 1; i <= totalPages; i++) {
+                                            this.thumbnails.push({
+                                                pdfIndex,
+                                                src: '',
+                                                index: i,
+                                                width: 150, height: h * (150 / w)
+                                            })
+                                            this.imgs.push({
+                                                pdfIndex,
+                                                src: '',
+                                                index: i,
+                                                width: w, height: h
+                                            })
 
-                    fileReader.readAsDataURL(file);
+                                        }
+                                        resolve()
+                                    })
+
+
+                                }
+                            });
+                        }
+                        fileReader.readAsDataURL(file);
+                    })
+
                 }
 
 
@@ -253,14 +280,14 @@
             },
             async downZip() {
 
-                var zip = new JSZip(); //创建一个JSZip实例
+                var zip = new JSZip(); //创建一个JSZip实例f
 
                 //将图片放进文件夹images中
                 for (let i = 0; i < this.imgs.length; i++) {
                     let img = this.imgs[i]
                     let src = img.src
                     if(!src){
-                        let data = await this.renderImg(this.pdf, img.index, 3)
+                        let data = await this.renderImg(this.pdfs[img.pdfIndex], img.index, 3)
                         img.src = data.src
                         img.width = data.width
                         img.height = data.height
@@ -287,16 +314,6 @@
                 var arr = dataurl.split(',')
                 return arr[1]
             },
-            onSubmit() {
-                Print('#a4', {
-                    onStart: function () {
-                        console.log('onStart', new Date())
-                    },
-                    onEnd: function () {
-                        console.log('onEnd', new Date())
-                    }
-                })
-            }
         }
     })
 </script>
