@@ -70,10 +70,10 @@
 
     </div>
 </div>
-
+<!-- build:js static/js/lib.js -->
 <script src="./static/vue.min.js"></script>
 <script src="./static/element-ui.js"></script>
-
+<!-- endbuild -->
 <script defer src="./static/pdfjs/pdf.js"></script>
 <script defer src="./static/FileSaver.min.js"></script>
 <script defer src="./static/jszip.min.js"></script>
@@ -179,7 +179,6 @@
                         }
                     }); //渲染生成
                 });
-
             },
             async addImg(files) {
                 const workerParameters = {

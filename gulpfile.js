@@ -4,6 +4,7 @@ const {src, dest, watch, symlink, task, series, lastRun, parallel} = require('gu
 const rimraf = require('rimraf');// 只是删除文件以及文件夹 我们没必要去用一个 gulp 插件，直接用原生的 node 模块
 const plugins = require('gulp-load-plugins')(); // 自动加载 gulp 插件
 // const pngquant = require('imagemin-pngquant');  // 使用 pngquant 深度压缩 png 图片的 imagemin 插件
+const htmlmin = require('gulp-html-minifier-terser');    // 压缩html
 const browserSync = require('browser-sync');    // 本地开发 浏览器实时刷新
 const eslint = require('gulp-eslint');          // js 代码检查
 const reload = browserSync.reload;
@@ -25,6 +26,7 @@ console.log(options, 'options');
 // 定义路径对象
 const srcRoot = 'src/'; // 源目录文件夹
 const distRoot = 'build/'; // 输出目录文件夹
+const tempRoot = 'temp/'; // 输出目录文件夹
 const paths = {
     src: {
         css: srcRoot + 'assets/css/',
@@ -66,6 +68,9 @@ task('img', () => {
         //   use: [pngquant()] // 使用 pngquant 深度压缩 png 图片的 imagemin 插件
         // }))
         .pipe(dest(paths.dest.img))
+        .pipe(browserSync.reload({
+            stream: true
+        }))
 });
 
 /**
@@ -106,34 +111,33 @@ task('js', () => {
         .pipe(plugins.rename({
             suffix: ''
         }))
-        .pipe(dest(paths.dest.js, {sourcemaps: '.'}));
+        .pipe(dest(paths.dest.js, {sourcemaps: '.'}))
+        .pipe(browserSync.reload({
+            stream: true
+        }));
+});
+
+
+/**
+ * 合并js和css
+ * */
+task('useref', function () {
+    return src([distRoot+'*.html'], {base: 'build'})
+        .pipe(plugins.useref({searchPath: ['build', '.']}))
+        .pipe(plugins.if('*.js', plugins.uglify()))          // 调用 gulp-uglify 插件
+        .pipe(plugins.if('*.css', plugins.cleanCss()))   // 调用 gulp-clean-css 插件
+        .pipe(plugins.if('*.html', htmlmin({
+            minifyJS: true,                     // 压缩页面JS
+            minifyCSS: true,                     // 压缩页面CSS
+            removeComments: true,               // 清除HTML注释
+            collapseWhitespace: true,           // 压缩空格
+        })))   // 调用 gulp-clean-css 插件
+        .pipe(dest(distRoot));
 });
 
 /**
  * 处理 html
  */
-task('html', function () {
-    return src(['!src/static/**/*.html', paths.src.page + '*.html'])
-        //   .pipe(plugins.cheerio(function ($, file, done) {
-        //     // $('body').prepend('<script src="../../dist/js/env.js"></script>');
-        //     // $('body').prepend(`<script>window.PROJECT_NODE_ENV = '${options.env}';</script>`);
-        //     done();
-        //   }))
-        //   .pipe(plugins.htmlmin({
-        //     removeComments: true,               // 清除HTML注释
-        //     collapseWhitespace: true,           // 压缩空格
-        //     collapseBooleanAttributes: true,    // 省略布尔属性的值 <input checked="true"/> => <input checked>
-        //     removeEmptyAttributes: true,        // 删除所有空格作属性值 <input id=""> => <input>
-        //     removeScriptTypeAttributes: true,   // 删除<script>的type="text/javascript"
-        //     removeStyleLinkTypeAttributes: true,// 删除<style>和<link>的type="text/css"
-        //     minifyJS: true,                     // 压缩页面JS
-        //     minifyCSS: true                     // 压缩页面CSS
-        //   }))
-        .pipe(dest(paths.dest.html));
-});
-
-
-// html 包含文件
 task('fileinclude', function () {
     return src(['!src/components/*.html', '!src/static/**/*.html', 'src/*.html'])
         .pipe(gulpChanged(paths.dest.html))
@@ -142,25 +146,25 @@ task('fileinclude', function () {
             basepath: './src/components/'
         }))
         .pipe(replace(/\.less/g, '.css'))
-          .pipe(plugins.htmlmin({
-            removeComments: true,               // 清除HTML注释
-            collapseWhitespace: true,           // 压缩空格
+        .pipe(htmlmin({
+            // removeComments: true,               // 清除HTML注释
+            // collapseWhitespace: true,           // 压缩空格
             collapseBooleanAttributes: true,    // 省略布尔属性的值 <input checked="true"/> => <input checked>
             removeEmptyAttributes: true,        // 删除所有空格作属性值 <input id=""> => <input>
-            removeScriptTypeAttributes: true,   // 删除<script>的type="text/javascript"
-            removeStyleLinkTypeAttributes: true,// 删除<style>和<link>的type="text/css"
+            // removeScriptTypeAttributes: true,   // 删除<script>的type="text/javascript"
+            // removeStyleLinkTypeAttributes: true,// 删除<style>和<link>的type="text/css"
             minifyJS: true,                     // 压缩页面JS
             minifyCSS: true                     // 压缩页面CSS
-          }))
+        }))
         //   .pipe(plugins.cheerio(function ($, file, done) {
         //     // $('body').prepend('<script src="../../dist/js/env.js"></script>');
         //     // $('body').prepend(`<script>window.PROJECT_NODE_ENV = '${options.env}';</script>`);
         //     done();
         //   }))
         .pipe(gulp.dest(paths.dest.html))
-    // .pipe(reload({
-    //     stream: true
-    // }));
+        .pipe(reload({
+            stream: true
+        }));
 });
 
 
@@ -170,7 +174,10 @@ task('fileinclude', function () {
 task('lib', () => {
     return src(paths.src.lib + '**/*.*')
         .pipe(dest(paths.dest.lib));
-
+});
+task('copy', () => {
+    return src(tempRoot + '**/*.*')
+        .pipe(dest(distRoot));
 });
 
 /**
@@ -216,10 +223,10 @@ task('server', () => {
         }],
         ui: false,
         open: false,
-        files: ['**'],
+        // files: ['**'],
         // browser: "google chrome",
         notify: true,
-        online: false,
+        // online: false,
         port: 4000    //端口
     });
 });
@@ -228,4 +235,4 @@ task('server', () => {
 
 exports.default = series('clean', parallel('css', 'img', 'js', 'fileinclude'), parallel('watcher', 'server'));
 
-exports.build = series('clean', 'lib', 'img', 'css', 'js', 'fileinclude');
+exports.build = series('clean', parallel('lib', 'img', 'css', 'js', 'fileinclude'),'useref');
